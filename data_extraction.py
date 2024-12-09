@@ -61,3 +61,5 @@ complete_fc_noloc = complete_fc.drop(columns=["plot_ID", "location"])
 complete_fc_noloc.to_csv("datasets/complete_fc.csv", sep=",", index=False)
 sff_noloc = spectra_forest_floor.drop(columns=["plot_ID", "location"])
 sff_noloc.to_csv("datasets/sff.csv", sep=",", index=False)
+complete_sff = spectra_forest_floor
+complete_sff.to_csv("datasets/sff_loc.csv", sep=",", index=False)

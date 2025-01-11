@@ -29,16 +29,16 @@ class CustomDataset(Dataset):
 
 if __name__ == "__main__":
     assert os.path.exists(f"datasets/{no_features}features_pca.csv") and os.path.exists("datasets/complete_fc.csv"), \
-        "First run data_extraction.py and feature_extraction.ipynb"
+        "First run intermediate_points_generation.ipynb and feature_extraction.ipynb"
 
-    X_train, X_test, y_train, y_test = train_test_split(pd.read_csv("datasets/10features_pca.csv").values,
-                                                        pd.read_csv("datasets/complete_fc.csv").values, test_size=0.1)
+    X = pd.read_csv("datasets/10features_pca.csv")
+    y = pd.read_csv("datasets/complete_fc.csv") * 100
 
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
-    # y_train = scaler.fit_transform(y_train)
-    # y_test = scaler.transform(y_test)
+    X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, test_size=0.1)
+
+    # scaler = StandardScaler()
+    # X_train = scaler.fit_transform(X_train)
+    # X_test = scaler.transform(X_test)
 
     model = MLP()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -47,8 +47,7 @@ if __name__ == "__main__":
 
     print("Training")
 
-    for epoch in range(5000):
-        print(f"Epoch {epoch}")
+    for epoch in range(10000):
         model.train()
         loss_per_epoch = 0
 
@@ -62,7 +61,9 @@ if __name__ == "__main__":
             optimizer.step()
 
         loss_per_epoch /= len(train_loader)
-        print(loss_per_epoch)
+
+        if epoch % 100 == 0:
+            print(f"Epoch {epoch}: loss {loss_per_epoch}")
 
     print("Testing")
 
@@ -71,5 +72,7 @@ if __name__ == "__main__":
     with torch.no_grad():
         features, targets = next(iter(test_loader))
         y = model(features)
-        print(targets - y)
-        print(nn.functional.mse_loss(y, targets))
+        print(targets)
+        print(f"Errors: {np.abs(np.round(targets - y, decimals=1))}")
+        print(f"MSE loss: {nn.functional.mse_loss(y, targets)}")
+        print(f"MAE loss: {nn.functional.l1_loss(y, targets)}")

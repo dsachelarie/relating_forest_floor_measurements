@@ -32,13 +32,10 @@ if __name__ == "__main__":
         "First run intermediate_points_generation.ipynb and feature_extraction.ipynb"
 
     X = pd.read_csv("datasets/10features_pca.csv")
-    y = pd.read_csv("datasets/complete_fc.csv") * 100
+    y = pd.read_csv("datasets/complete_fc.csv")
+    y = y.drop(columns=["plot_ID", "location"]) * 100
 
     X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, test_size=0.1)
-
-    # scaler = StandardScaler()
-    # X_train = scaler.fit_transform(X_train)
-    # X_test = scaler.transform(X_test)
 
     model = MLP()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
